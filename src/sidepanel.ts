@@ -18,14 +18,36 @@ async function init() {
 }
 
 async function fetchRepos(username: string) {
-  const response = await fetch(
-    `https://api.github.com/users/${username}/repos?per_page=100`,
-    {
-      headers: { Authorization: `token ${GITHUB_TOKEN}` },
-    },
-  );
-  const repos: GitHubRepo[] = await response.json();
-  renderChart(repos);
+  const statusEl = document.getElementById("status")!;
+
+  try {
+    const headers: HeadersInit = GITHUB_TOKEN
+      ? { Authorization: `token ${GITHUB_TOKEN}` }
+      : {};
+
+    const response = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=100`,
+      { headers },
+    );
+
+    if (!response.ok) {
+      const err = (await response.json()) as { message: string };
+      statusEl.textContent = `Erreur API GitHub : ${err.message}`;
+      return;
+    }
+
+    const repos: GitHubRepo[] = await response.json();
+
+    if (!Array.isArray(repos) || repos.length === 0) {
+      statusEl.textContent = "Aucun dépôt trouvé pour cet utilisateur.";
+      return;
+    }
+
+    statusEl.textContent = `${repos.length} dépôts analysés pour ${username}`;
+    renderChart(repos);
+  } catch (e) {
+    statusEl.textContent = `Erreur réseau : ${e}`;
+  }
 }
 
 function renderChart(repos: GitHubRepo[]) {
