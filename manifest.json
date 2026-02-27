@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Tech Stack Detector",
+  "version": "1.0.0",
+  "action": {
+    "default_title": "Tech Stack Detector"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": ["sidePanel", "tabs", "activeTab", "storage"],
+  "host_permissions": ["https://api.github.com/*"],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  }
+}
