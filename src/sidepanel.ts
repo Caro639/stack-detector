@@ -8,9 +8,9 @@ async function init() {
     active: true,
     lastFocusedWindow: true,
   });
-
+  // Récupère le nom après github.com/ et ignore les pages de paramètres ou d'exploration
   if (tab?.url?.includes("github.com")) {
-    const username = tab.url.split("/")[3]; // Récupère le nom après github.com/
+    const username = tab.url.split("/")[3];
     if (username && !["settings", "explore"].includes(username)) {
       fetchRepos(username);
     }
@@ -50,6 +50,13 @@ async function fetchRepos(username: string) {
   }
 }
 
+function generateColors(count: number): string[] {
+  return Array.from({ length: count }, (_, i) => {
+    const hue = Math.round((i * 360) / count);
+    return `hsl(${hue}, 70%, 60%)`;
+  });
+}
+
 function renderChart(repos: GitHubRepo[]) {
   const stats: LanguageStats = {};
 
@@ -59,21 +66,16 @@ function renderChart(repos: GitHubRepo[]) {
     }
   });
 
+  const labels = Object.keys(stats);
   const ctx = document.getElementById("techChart") as HTMLCanvasElement;
   new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: Object.keys(stats),
+      labels,
       datasets: [
         {
           data: Object.values(stats),
-          backgroundColor: [
-            "#ff6384",
-            "#36a2eb",
-            "#ffce56",
-            "#4bc0c0",
-            "#9966ff",
-          ],
+          backgroundColor: generateColors(labels.length),
         },
       ],
     },
